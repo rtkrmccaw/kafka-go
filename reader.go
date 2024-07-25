@@ -1325,10 +1325,16 @@ func (r *reader) run(ctx context.Context, offset int64) {
 			offset, err = r.read(ctx, offset, conn)
 			switch {
 			case err == nil:
+				r.withLogger(func(log Logger) {
+					log.Printf("case 1 partition %d topic %s offset %d", r.partition, r.topic, toHumanOffset(offset))
+				})
 				errcount = 0
 				continue
 
 			case errors.Is(err, io.EOF):
+				r.withLogger(func(log Logger) {
+					log.Printf("case 2 partition %d topic %s offset %d", r.partition, r.topic, toHumanOffset(offset))
+				})
 				// done with this batch of messages...carry on.  note that this
 				// block relies on the batch repackaging real io.EOF errors as
 				// io.UnexpectedEOF.  otherwise, we would end up swallowing real
@@ -1337,6 +1343,9 @@ func (r *reader) run(ctx context.Context, offset int64) {
 				continue
 
 			case errors.Is(err, io.ErrNoProgress):
+				r.withLogger(func(log Logger) {
+					log.Printf("case 3 partition %d topic %s offset %d", r.partition, r.topic, toHumanOffset(offset))
+				})
 				// This error is returned by the Conn when it believes the connection
 				// has been corrupted, so we need to explicitly close it. Since we are
 				// explicitly handling it and a retry will pick up, we can suppress the
@@ -1345,6 +1354,9 @@ func (r *reader) run(ctx context.Context, offset int64) {
 				break readLoop
 
 			case errors.Is(err, UnknownTopicOrPartition):
+				r.withLogger(func(log Logger) {
+					log.Printf("case 4 partition %d topic %s offset %d", r.partition, r.topic, toHumanOffset(offset))
+				})
 				r.withErrorLogger(func(log Logger) {
 					log.Printf("failed to read from current broker %v for partition %d of %s at offset %d: %v", r.brokers, r.partition, r.topic, toHumanOffset(offset), err)
 				})
@@ -1357,6 +1369,9 @@ func (r *reader) run(ctx context.Context, offset int64) {
 				break readLoop
 
 			case errors.Is(err, NotLeaderForPartition):
+				r.withLogger(func(log Logger) {
+					log.Printf("case 5 partition %d topic %s offset %d", r.partition, r.topic, toHumanOffset(offset))
+				})
 				r.withErrorLogger(func(log Logger) {
 					log.Printf("failed to read from current broker for partition %d of %s at offset %d: %v", r.partition, r.topic, toHumanOffset(offset), err)
 				})
@@ -1369,6 +1384,9 @@ func (r *reader) run(ctx context.Context, offset int64) {
 				break readLoop
 
 			case errors.Is(err, RequestTimedOut):
+				r.withLogger(func(log Logger) {
+					log.Printf("case 6 partition %d topic %s offset %d", r.partition, r.topic, toHumanOffset(offset))
+				})
 				// Timeout on the kafka side, this can be safely retried.
 				errcount = 0
 				r.withLogger(func(log Logger) {
@@ -1378,6 +1396,9 @@ func (r *reader) run(ctx context.Context, offset int64) {
 				continue
 
 			case errors.Is(err, OffsetOutOfRange):
+				r.withLogger(func(log Logger) {
+					log.Printf("case 7 partition %d topic %s offset %d", r.partition, r.topic, toHumanOffset(offset))
+				})
 				first, last, err := r.readOffsets(conn)
 				if err != nil {
 					r.withErrorLogger(func(log Logger) {
@@ -1389,6 +1410,9 @@ func (r *reader) run(ctx context.Context, offset int64) {
 
 				switch {
 				case offset < first:
+					r.withLogger(func(log Logger) {
+						log.Printf("case 7a partition %d topic %s offset %d", r.partition, r.topic, toHumanOffset(offset))
+					})
 					r.withErrorLogger(func(log Logger) {
 						log.Printf("the kafka reader is reading before the first offset for partition %d of %s, skipping from offset %d to %d (%d messages)", r.partition, r.topic, toHumanOffset(offset), first, first-offset)
 					})
@@ -1396,10 +1420,16 @@ func (r *reader) run(ctx context.Context, offset int64) {
 					continue // retry immediately so we don't keep falling behind due to the backoff
 
 				case offset < last:
+					r.withLogger(func(log Logger) {
+						log.Printf("case 7b partition %d topic %s offset %d", r.partition, r.topic, toHumanOffset(offset))
+					})
 					errcount = 0
 					continue // more messages have already become available, retry immediately
 
 				default:
+					r.withLogger(func(log Logger) {
+						log.Printf("case 7c partition %d topic %s offset %d", r.partition, r.topic, toHumanOffset(offset))
+					})
 					// We may be reading past the last offset, will retry later.
 					r.withErrorLogger(func(log Logger) {
 						log.Printf("the kafka reader is reading passed the last offset for partition %d of %s at offset %d", r.partition, r.topic, toHumanOffset(offset))
@@ -1407,11 +1437,17 @@ func (r *reader) run(ctx context.Context, offset int64) {
 				}
 
 			case errors.Is(err, context.Canceled):
+				r.withLogger(func(log Logger) {
+					log.Printf("case 8 partition %d topic %s offset %d", r.partition, r.topic, toHumanOffset(offset))
+				})
 				// Another reader has taken over, we can safely quit.
 				conn.Close()
 				return
 
 			case errors.Is(err, errUnknownCodec):
+				r.withLogger(func(log Logger) {
+					log.Printf("case 9 partition %d topic %s offset %d", r.partition, r.topic, toHumanOffset(offset))
+				})
 				// The compression codec is either unsupported or has not been
 				// imported.  This is a fatal error b/c the reader cannot
 				// proceed.
@@ -1419,6 +1455,9 @@ func (r *reader) run(ctx context.Context, offset int64) {
 				break readLoop
 
 			default:
+				r.withLogger(func(log Logger) {
+					log.Printf("case 10 partition %d topic %s offset %d", r.partition, r.topic, toHumanOffset(offset))
+				})
 				var kafkaError Error
 				if errors.As(err, &kafkaError) {
 					r.sendError(ctx, err)
