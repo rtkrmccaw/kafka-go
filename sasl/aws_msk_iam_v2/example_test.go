@@ -7,7 +7,7 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/rtkrmccaw/kafka-go/sasl/aws_msk_iam_v2"
-	"github.com/segmentio/kafka-go"
+	"github.com/rtkrmccaw/kafka-go"
 )
 
 func main() {
