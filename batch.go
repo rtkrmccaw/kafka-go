@@ -236,6 +236,70 @@ func (batch *Batch) ReadMessage() (Message, error) {
 	return msg, err
 }
 
+// ReadMessage reads and return the next message from the batch.
+//
+// Because this method allocate memory buffers for the message key and value
+// it is less memory-efficient than Read, but has the advantage of never
+// failing with io.ErrShortBuffer.
+func (batch *Batch) ReadMessageWithLogger(l Logger) (Message, error) {
+	msg := Message{}
+	batch.mutex.Lock()
+
+	var offset, timestamp int64
+	var headers []Header
+	var err error
+
+	offset, timestamp, headers, err = batch.readMessage(
+		func(r *bufio.Reader, size int, nbytes int) (remain int, err error) {
+			msg.Key, remain, err = readNewBytes(r, size, nbytes)
+			if err != nil {
+				l.Printf("first read error msg.Key %s remain %d: %s", string(msg.Key), remain, err)
+			}
+			return
+		},
+		func(r *bufio.Reader, size int, nbytes int) (remain int, err error) {
+			msg.Value, remain, err = readNewBytes(r, size, nbytes)
+			if err != nil {
+				l.Printf("first read error msg.Value %s remain %d: %s", string(msg.Value), remain, err)
+			}
+			return
+		},
+	)
+	// A batch may start before the requested offset so skip messages
+	// until the requested offset is reached.
+	for batch.conn != nil && offset < batch.conn.offset {
+		if err != nil {
+			break
+		}
+		offset, timestamp, headers, err = batch.readMessage(
+			func(r *bufio.Reader, size int, nbytes int) (remain int, err error) {
+				msg.Key, remain, err = readNewBytes(r, size, nbytes)
+				if err != nil {
+					l.Printf("offset read error offset %d msg.Key %s remain %d: %s", toHumanOffset(offset), string(msg.Key), remain, err)
+				}
+				return
+			},
+			func(r *bufio.Reader, size int, nbytes int) (remain int, err error) {
+				msg.Value, remain, err = readNewBytes(r, size, nbytes)
+				if err != nil {
+					l.Printf("offset read error offset %d msg.Value %s remain %d: %s", toHumanOffset(offset), string(msg.Value), remain, err)
+				}
+				return
+			},
+		)
+	}
+
+	batch.mutex.Unlock()
+	msg.Topic = batch.topic
+	msg.Partition = batch.partition
+	msg.Offset = offset
+	msg.HighWaterMark = batch.highWaterMark
+	msg.Time = makeTime(timestamp)
+	msg.Headers = headers
+
+	return msg, err
+}
+
 func (batch *Batch) readMessage(
 	key func(*bufio.Reader, int, int) (int, error),
 	val func(*bufio.Reader, int, int) (int, error),

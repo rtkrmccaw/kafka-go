@@ -1549,7 +1549,7 @@ func (r *reader) read(ctx context.Context, offset int64, conn *Conn) (int64, err
 	for {
 		conn.SetReadDeadline(time.Now().Add(r.readBatchTimeout))
 
-		if msg, err = batch.ReadMessage(); err != nil {
+		if msg, err = batch.ReadMessageWithLogger(r.logger); err != nil {
 			r.withErrorLogger(func(log Logger) {
 				log.Printf("failed to read message at offset %d for topic %s and partition %d: %s", toHumanOffset(offset), r.topic, r.partition, err)
 			})
