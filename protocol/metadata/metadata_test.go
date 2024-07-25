@@ -3,8 +3,8 @@ package metadata_test
 import (
 	"testing"
 
-	"github.com/segmentio/kafka-go/protocol/metadata"
-	"github.com/segmentio/kafka-go/protocol/prototest"
+	"github.com/rtkrmccaw/kafka-go/protocol/metadata"
+	"github.com/rtkrmccaw/kafka-go/protocol/prototest"
 )
 
 const (

@@ -13,7 +13,7 @@ import (
 	"testing"
 	"time"
 
-	ktesting "github.com/segmentio/kafka-go/testing"
+	ktesting "github.com/rtkrmccaw/kafka-go/testing"
 	"golang.org/x/net/nettest"
 )
 

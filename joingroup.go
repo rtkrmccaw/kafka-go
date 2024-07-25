@@ -8,9 +8,9 @@ import (
 	"net"
 	"time"
 
-	"github.com/segmentio/kafka-go/protocol"
-	"github.com/segmentio/kafka-go/protocol/consumer"
-	"github.com/segmentio/kafka-go/protocol/joingroup"
+	"github.com/rtkrmccaw/kafka-go/protocol"
+	"github.com/rtkrmccaw/kafka-go/protocol/consumer"
+	"github.com/rtkrmccaw/kafka-go/protocol/joingroup"
 )
 
 // JoinGroupRequest is the request structure for the JoinGroup function.

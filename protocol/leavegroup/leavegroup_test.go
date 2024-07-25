@@ -3,8 +3,8 @@ package leavegroup_test
 import (
 	"testing"
 
-	"github.com/segmentio/kafka-go/protocol/leavegroup"
-	"github.com/segmentio/kafka-go/protocol/prototest"
+	"github.com/rtkrmccaw/kafka-go/protocol/leavegroup"
+	"github.com/rtkrmccaw/kafka-go/protocol/prototest"
 )
 
 func TestLeaveGroupReq(t *testing.T) {

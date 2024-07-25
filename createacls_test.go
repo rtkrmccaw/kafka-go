@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	ktesting "github.com/segmentio/kafka-go/testing"
+	ktesting "github.com/rtkrmccaw/kafka-go/testing"
 )
 
 func TestClientCreateACLs(t *testing.T) {

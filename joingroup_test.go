@@ -9,7 +9,7 @@ import (
 	"testing"
 	"time"
 
-	ktesting "github.com/segmentio/kafka-go/testing"
+	ktesting "github.com/rtkrmccaw/kafka-go/testing"
 )
 
 func TestClientJoinGroup(t *testing.T) {

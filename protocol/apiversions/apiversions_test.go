@@ -3,8 +3,8 @@ package apiversions_test
 import (
 	"testing"
 
-	"github.com/segmentio/kafka-go/protocol/apiversions"
-	"github.com/segmentio/kafka-go/protocol/prototest"
+	"github.com/rtkrmccaw/kafka-go/protocol/apiversions"
+	"github.com/rtkrmccaw/kafka-go/protocol/prototest"
 )
 
 const (

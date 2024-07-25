@@ -3,8 +3,8 @@ package createacls_test
 import (
 	"testing"
 
-	"github.com/segmentio/kafka-go/protocol/createacls"
-	"github.com/segmentio/kafka-go/protocol/prototest"
+	"github.com/rtkrmccaw/kafka-go/protocol/createacls"
+	"github.com/rtkrmccaw/kafka-go/protocol/prototest"
 )
 
 const (

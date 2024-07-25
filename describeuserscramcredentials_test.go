@@ -5,7 +5,7 @@ import (
 	"errors"
 	"testing"
 
-	ktesting "github.com/segmentio/kafka-go/testing"
+	ktesting "github.com/rtkrmccaw/kafka-go/testing"
 	"github.com/stretchr/testify/assert"
 )
 

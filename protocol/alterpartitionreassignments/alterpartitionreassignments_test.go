@@ -3,8 +3,8 @@ package alterpartitionreassignments_test
 import (
 	"testing"
 
-	"github.com/segmentio/kafka-go/protocol/alterpartitionreassignments"
-	"github.com/segmentio/kafka-go/protocol/prototest"
+	"github.com/rtkrmccaw/kafka-go/protocol/alterpartitionreassignments"
+	"github.com/rtkrmccaw/kafka-go/protocol/prototest"
 )
 
 const (

@@ -3,8 +3,8 @@ package alterclientquotas_test
 import (
 	"testing"
 
-	"github.com/segmentio/kafka-go/protocol/alterclientquotas"
-	"github.com/segmentio/kafka-go/protocol/prototest"
+	"github.com/rtkrmccaw/kafka-go/protocol/alterclientquotas"
+	"github.com/rtkrmccaw/kafka-go/protocol/prototest"
 )
 
 const (
