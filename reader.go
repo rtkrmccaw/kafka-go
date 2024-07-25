@@ -1511,6 +1511,9 @@ func (r *reader) read(ctx context.Context, offset int64, conn *Conn) (int64, err
 		conn.SetReadDeadline(time.Now().Add(r.readBatchTimeout))
 
 		if msg, err = batch.ReadMessage(); err != nil {
+			r.withErrorLogger(func(log Logger) {
+				log.Printf("failed to read message at offset %d for topic %s and partition %d: %s", r.stats.offset.snapshot() , r.topic, r.partition, err)
+			})
 			batch.Close()
 			break
 		}
@@ -1520,6 +1523,9 @@ func (r *reader) read(ctx context.Context, offset int64, conn *Conn) (int64, err
 		r.stats.bytes.observe(n)
 
 		if err = r.sendMessage(ctx, msg, highWaterMark); err != nil {
+			r.withErrorLogger(func(log Logger) {
+				log.Printf("failed to send message at offset %d for topic %s and partition %d and highWaterMark %d: %s", r.stats.offset.snapshot() , r.topic, r.partition, highWaterMark, err)
+			})
 			batch.Close()
 			break
 		}
