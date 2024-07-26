@@ -296,53 +296,121 @@ func (r *Reader) run(cg *ConsumerGroup) {
 		l.Printf("entering loop for consumer group, %v\n", r.config.GroupID)
 	})
 
+	// ---RYAN--- THIS LOOP IS ITTERATING EVERY HOUR
 	for {
+		topics := r.getTopics()
+		r.withLogger(func(l Logger) {
+			l.Printf("--RYAN-- 1 -- Group ID %s -- Topic %s", r.config.GroupID, topics[0])
+		})
 		// Limit the number of attempts at waiting for the next
 		// consumer generation.
 		var err error
 		var gen *Generation
 		for attempt := 1; attempt <= r.config.MaxAttempts; attempt++ {
+			r.withLogger(func(l Logger) {
+				l.Printf("--RYAN-- 2 -- Group ID %s -- Topic %s -- Attempt %d", r.config.GroupID, topics[0], attempt)
+			})
 			gen, err = cg.Next(r.stctx)
+			r.withLogger(func(l Logger) {
+				l.Printf("--RYAN-- 3 -- Group ID %s -- Topic %s -- Attempt %d", r.config.GroupID, topics[0], attempt)
+			})
 			if err == nil {
+				r.withLogger(func(l Logger) {
+					l.Printf("--RYAN-- 4 -- Group ID %s -- Topic %s -- Attempt %d", r.config.GroupID, topics[0], attempt)
+				})
 				break
 			}
+			r.withLogger(func(l Logger) {
+				l.Printf("--RYAN-- 5 -- Group ID %s -- Topic %s -- Attempt %d", r.config.GroupID, topics[0], attempt)
+			})
 			if errors.Is(err, r.stctx.Err()) {
+				r.withLogger(func(l Logger) {
+					l.Printf("--RYAN-- 6 -- Group ID %s -- Topic %s -- Attempt %d -- Err %s", r.config.GroupID, topics[0], attempt, err)
+				})
 				return
 			}
+			r.withLogger(func(l Logger) {
+				l.Printf("--RYAN-- 7 -- Group ID %s -- Topic %s -- Attempt %d -- Err %s", r.config.GroupID, topics[0], attempt, err)
+			})
 			r.stats.errors.observe(1)
 			r.withErrorLogger(func(l Logger) {
 				l.Printf("%v", err)
 			})
 			// Continue with next attempt...
 		}
+		r.withLogger(func(l Logger) {
+			l.Printf("--RYAN-- 8 -- Group ID %s -- Topic %s", r.config.GroupID, topics[0])
+		})
 		if err != nil {
+			r.withLogger(func(l Logger) {
+				l.Printf("--RYAN-- 9 -- Group ID %s -- Topic %s -- Err %s", r.config.GroupID, topics[0], err)
+			})
 			// All attempts have failed.
 			select {
 			case r.runError <- err:
+				r.withLogger(func(l Logger) {
+					l.Printf("--RYAN-- 10 -- Group ID %s -- Topic %s -- Err %s", r.config.GroupID, topics[0], err)
+				})
 				// If somebody's receiving on the runError, let
 				// them know the error occurred.
 			default:
+				r.withLogger(func(l Logger) {
+					l.Printf("--RYAN-- 11 -- Group ID %s -- Topic %s -- Err %s", r.config.GroupID, topics[0], err)
+				})
 				// Otherwise, don't block to allow healing.
 			}
 			continue
 		}
+		r.withLogger(func(l Logger) {
+			l.Printf("--RYAN-- 12 -- Group ID %s -- Topic %s", r.config.GroupID, topics[0])
+		})
 
 		r.stats.rebalances.observe(1)
+		r.withLogger(func(l Logger) {
+			l.Printf("--RYAN-- 13 -- Group ID %s -- Topic %s", r.config.GroupID, topics[0])
+		})
 
 		r.subscribe(gen.Assignments)
+		r.withLogger(func(l Logger) {
+			l.Printf("--RYAN-- 14 -- Group ID %s -- Topic %s", r.config.GroupID, topics[0])
+		})
 
 		gen.Start(func(ctx context.Context) {
+			r.withLogger(func(l Logger) {
+				l.Printf("--RYAN-- 15 -- Group ID %s -- Topic %s", r.config.GroupID, topics[0])
+			})
 			r.commitLoop(ctx, gen)
 		})
+		r.withLogger(func(l Logger) {
+			l.Printf("--RYAN-- 16 -- Group ID %s -- Topic %s", r.config.GroupID, topics[0])
+		})
 		gen.Start(func(ctx context.Context) {
+			r.withLogger(func(l Logger) {
+				l.Printf("--RYAN-- 17 -- Group ID %s -- Topic %s", r.config.GroupID, topics[0])
+			})
 			// wait for the generation to end and then unsubscribe.
 			select {
 			case <-ctx.Done():
+				r.withLogger(func(l Logger) {
+					l.Printf("--RYAN-- 18 -- Group ID %s -- Topic %s", r.config.GroupID, topics[0])
+				})
 				// continue to next generation
 			case <-r.stctx.Done():
+				r.withLogger(func(l Logger) {
+					l.Printf("--RYAN-- 19 -- Group ID %s -- Topic %s", r.config.GroupID, topics[0])
+				})
 				// this will be the last loop because the reader is closed.
 			}
+			r.withLogger(func(l Logger) {
+				l.Printf("--RYAN-- 20 -- Group ID %s -- Topic %s", r.config.GroupID, topics[0])
+			})
 			r.unsubscribe()
+			r.withLogger(func(l Logger) {
+				l.Printf("--RYAN-- 21 -- Group ID %s -- Topic %s", r.config.GroupID, topics[0])
+			})
+		})
+		r.withLogger(func(l Logger) {
+			l.Printf("--RYAN-- 22 -- Group ID %s -- Topic %s", r.config.GroupID, topics[0])
 		})
 	}
 }

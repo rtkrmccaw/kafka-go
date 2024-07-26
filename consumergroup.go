@@ -720,7 +720,13 @@ func (cg *ConsumerGroup) run() {
 	var memberID string
 	var err error
 	for {
+		cg.withLogger(func(log Logger) {
+			log.Printf("find the next generation: memberID %s", memberID)
+		})
 		memberID, err = cg.nextGeneration(memberID)
+		cg.withLogger(func(log Logger) {
+			log.Printf("find the next generation: new? memberID %s", memberID)
+		})
 
 		// backoff will be set if this go routine should sleep before continuing
 		// to the next generation.  it will be non-nil in the case of an error
@@ -729,10 +735,16 @@ func (cg *ConsumerGroup) run() {
 
 		switch {
 		case err == nil:
+			cg.withLogger(func(log Logger) {
+				log.Printf("previous generation finished normally: memberID", memberID)
+			})
 			// no error...the previous generation finished normally.
 			continue
 
 		case errors.Is(err, ErrGroupClosed):
+			cg.withLogger(func(log Logger) {
+				log.Printf("ConsumerGroup has been closed: memberID %s", memberID)
+			})
 			// the CG has been closed...leave the group and exit loop.
 			_ = cg.leaveGroup(memberID)
 			return
@@ -743,6 +755,9 @@ func (cg *ConsumerGroup) run() {
 			// to join the group will then be subject to the rebalance
 			// timeout, so the broker will be responsible for throttling
 			// this loop.
+			cg.withLogger(func(log Logger) {
+				log.Printf("RebalanceInProgress: memberID %s", memberID)
+			})
 
 		default:
 			// leave the group and report the error if we had gotten far
@@ -750,6 +765,9 @@ func (cg *ConsumerGroup) run() {
 			// so we don't attempt to use it again.  in order to avoid
 			// a tight error loop, backoff before the next attempt to join
 			// the group.
+			cg.withLogger(func(log Logger) {
+				log.Printf("leaving group due to error: memberID %s: %s", memberID, err)
+			})
 			_ = cg.leaveGroup(memberID)
 			memberID = ""
 			backoff = time.After(cg.config.JoinGroupBackoff)
@@ -766,6 +784,9 @@ func (cg *ConsumerGroup) run() {
 			select {
 			case <-cg.done:
 				// exit cleanly if the group is closed.
+				cg.withLogger(func(log Logger) {
+					log.Printf("exit cleanly, ConsumerGroup is done")
+				})
 				return
 			case <-backoff:
 			}
