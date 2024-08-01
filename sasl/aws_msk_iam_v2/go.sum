@@ -42,8 +42,8 @@ github.com/pierrec/lz4/v4 v4.1.15 h1:MO0/ucJhngq7299dKLwIMtgTfbkoSPF6AoMYDd8Q4q0
 github.com/pierrec/lz4/v4 v4.1.15/go.mod h1:gZWDp/Ze/IJXGXf23ltt2EXimqmTUXEy0GFuRQyBid4=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
-github.com/rtkrmccaw/kafka-go v0.0.0-20240801145444-d9580d6132f8 h1:QFVeyuNT2DL7EIwrFmxZT+YSLxB6qgXTm8iI/myuUe8=
-github.com/rtkrmccaw/kafka-go v0.0.0-20240801145444-d9580d6132f8/go.mod h1:32+SVUhZ8py/TSCVQWl5920oyNwJLdDKwQS0SV9kvhQ=
+github.com/rtkrmccaw/kafka-go v0.0.0-20240801152223-a5832a65ff38 h1:Rty5bRKuoyhkOZ9HawCf+UY2j+of7KzhTOubfUDqsFg=
+github.com/rtkrmccaw/kafka-go v0.0.0-20240801152223-a5832a65ff38/go.mod h1:32+SVUhZ8py/TSCVQWl5920oyNwJLdDKwQS0SV9kvhQ=
 github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=
 github.com/stretchr/objx v0.4.0/go.mod h1:YvHI0jy2hoMjB+UWwv71VJQ9isScKT/TqJzVSSt89Yw=
 github.com/stretchr/objx v0.5.0/go.mod h1:Yh+to48EsGEfYuaHDzXPcE3xhTkx73EhmCGUpEOglKo=
