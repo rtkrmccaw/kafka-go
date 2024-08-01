@@ -6,7 +6,7 @@ require (
 	github.com/aws/aws-sdk-go-v2 v1.16.12
 	github.com/aws/aws-sdk-go-v2/config v1.17.2
 	github.com/aws/aws-sdk-go-v2/credentials v1.12.15
-	github.com/rtkrmccaw/kafka-go v0.0.0-20240725180604-dfb79bd3ad0b
+	github.com/rtkrmccaw/kafka-go v0.0.0-20240801145444-d9580d6132f8
 	github.com/stretchr/testify v1.8.1
 	go.uber.org/zap v1.27.0
 )
