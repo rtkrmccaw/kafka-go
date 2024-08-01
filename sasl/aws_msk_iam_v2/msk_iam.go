@@ -96,12 +96,12 @@ func logError(fname string, seq int, fields ...zap.Field) {
 }
 
 func log(lfunc func(string, ...zap.Field), fname string, seq int, fields ...zap.Field) {
-	newFields := make([]zap.Field, (len(fields) + 2))
-	newFields[0] = zap.String("func", fname)
-	newFields[1] = zap.Int("seq", seq)
-	a := append(newFields, fields...)
+	newFields := make([]zap.Field, 0)
+	newFields = append(newFields, zap.String("func", fname))
+	newFields = append(newFields, zap.Int("seq", seq))
+	newFields = append(newFields, fields...)
 
-	lfunc("--RYAN-- IAM", a...)
+	lfunc("--RYAN-- IAM", newFields...)
 }
 
 // preSign produces the authentication values required for AWS_MSK_IAM.
