@@ -14,6 +14,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 	signer "github.com/aws/aws-sdk-go-v2/aws/signer/v4"
 	"github.com/rtkrmccaw/kafka-go/sasl"
+	"go.uber.org/zap"
 )
 
 const (
@@ -82,28 +83,54 @@ func (m *Mechanism) Start(ctx context.Context) (sess sasl.StateMachine, ir []byt
 	}
 
 	signedJson, err := json.Marshal(signedMap)
+	logInfo("Start", 0, zap.ByteString("signedJson", signedJson))
 	return m, signedJson, err
+}
+
+func logInfo(fname string, seq int, fields ...zap.Field) {
+	log(zap.L().Info, fname, seq, fields...)
+}
+
+func logError(fname string, seq int, fields ...zap.Field) {
+	log(zap.L().Error, fname, seq, fields...)
+}
+
+func log(lfunc func(string, ...zap.Field), fname string, seq int, fields ...zap.Field) {
+	newFields := make([]zap.Field, (len(fields) + 2))
+	newFields[0] = zap.String("func", fname)
+	newFields[1] = zap.Int("seq", seq)
+	a := append(newFields, fields...)
+
+	lfunc("--RYAN-- IAM", a...)
 }
 
 // preSign produces the authentication values required for AWS_MSK_IAM.
 func (m *Mechanism) preSign(ctx context.Context) (map[string]string, error) {
 	req, err := buildReq(ctx, defaultExpiry(m.Expiry))
+	logInfo("preSign", 0, zap.Any("req", req))
 	if err != nil {
+		logError("preSign", 1, zap.Any("req", req), zap.Error(err))
 		return nil, err
 	}
 
 	creds, err := m.Credentials.Retrieve(ctx)
+	logInfo("preSign", 2, zap.Any("creds", creds))
 	if err != nil {
+		logError("preSign", 3, zap.Any("creds", creds), zap.Error(err))
 		return nil, err
 	}
 
 	signedUrl, header, err := m.Signer.PresignHTTP(ctx, creds, req, signPayload, signService, m.Region, defaultSignTime(m.SignTime))
+	logInfo("preSign", 4, zap.String("signedUrl", signedUrl), zap.Any("header", header))
 	if err != nil {
+		logError("preSign", 5, zap.String("signedUrl", signedUrl), zap.Any("header", header), zap.Error(err))
 		return nil, err
 	}
 
 	u, err := url.Parse(signedUrl)
+	logInfo("preSign", 6, zap.Any("u", u))
 	if err != nil {
+		logError("preSign", 7, zap.Any("u", u), zap.Error(err))
 		return nil, err
 	}
 	return buildSignedMap(u, header), nil

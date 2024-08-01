@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/rtkrmccaw/kafka-go/sasl"
+	"go.uber.org/zap"
 )
 
 // The Dialer type mirrors the net.Dialer API but is designed to open kafka
@@ -321,16 +322,20 @@ func (d *Dialer) authenticateSASL(ctx context.Context, conn *Conn) error {
 		switch {
 		case err == nil:
 		case errors.Is(err, io.EOF):
+			logError("authenticateSASL", 0, zap.Error(err))
 			// the broker may communicate a failed exchange by closing the
 			// connection (esp. in the case where we're passing opaque sasl
 			// data over the wire since there's no protocol info).
 			return SASLAuthenticationFailed
 		default:
+			logError("authenticateSASL", 1, zap.Error(err))
 			return err
 		}
 
 		completed, state, err = sess.Next(ctx, challenge)
+		logInfo("authenticateSASL", 2, zap.Bool("completed", completed), zap.Binary("state", state))
 		if err != nil {
+			logError("authenticateSASL", 3, zap.Bool("completed", completed), zap.Binary("state", state), zap.Error(err))
 			return fmt.Errorf("SASL authentication process has failed: %w", err)
 		}
 	}

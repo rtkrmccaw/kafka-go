@@ -12,6 +12,8 @@ import (
 	"sync"
 	"sync/atomic"
 	"time"
+
+	"go.uber.org/zap"
 )
 
 var (
@@ -345,6 +347,7 @@ func (c *Conn) findCoordinator(request findCoordinatorRequestV0) (findCoordinato
 func (c *Conn) heartbeat(request heartbeatRequestV0) (heartbeatResponseV0, error) {
 	var response heartbeatResponseV0
 
+	logInfo("heartbeat", 0)
 	err := c.writeOperation(
 		func(deadline time.Time, id int32) error {
 			return c.writeRequest(heartbeat, v0, id, request)
@@ -356,12 +359,15 @@ func (c *Conn) heartbeat(request heartbeatRequestV0) (heartbeatResponseV0, error
 		},
 	)
 	if err != nil {
+		logError("heartbeat", 1, zap.Error(err))
 		return heartbeatResponseV0{}, err
 	}
 	if response.ErrorCode != 0 {
+		logError("heartbeat", 2, zap.Any("response", response))
 		return heartbeatResponseV0{}, Error(response.ErrorCode)
 	}
 
+	logInfo("heartbeat", 3, zap.Any("response", response))
 	return response, nil
 }
 
