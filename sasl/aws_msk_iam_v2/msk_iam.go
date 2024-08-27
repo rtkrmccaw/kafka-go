@@ -50,7 +50,7 @@ type Mechanism struct {
 }
 
 func (m *Mechanism) Name() string {
-	return "AWS_MSK_IAM"
+	return "OAUTHBEARER"
 }
 
 func (m *Mechanism) Next(ctx context.Context, challenge []byte) (bool, []byte, error) {
